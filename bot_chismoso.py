@@ -15,7 +15,13 @@ print("Iniciando")
 
 lista=[]
 
-ayuda="1-Para enviar mensajes al canal se usan los siguientes comandos: \n/enviar 'mensaje a enviar'\n*Ejemplo: \n/enviar Te tengo un chisme nuevo \n2-Para enviar una cancion 🎧 o foto 📸 se utiliza el mismo comando, ademas se puede responder una foto o cancion con el comando /enviar *'Mensaje a enviar' \n*Ejemplo: \n(responde una foto o cancion y luego escribe en el chat) \n/enviar *Aqui mando una cancion para mi persona especial \n3-Tambien puedes enviar encuestas solo creandola en el chat del bot. \n4-Todos los mensajes que envies pasaran por un proceso de aprobacion, si son aprobados se enviaran al canal\n5-Si tienes alguna queja o sugerencia usa el comando /feedback, funciona igual que /enviar\n6-Para unirte al canal usa el comando /canal"
+cartas=[]
+
+#fichero=open("cartas.txt","wb")
+#pickle.dump(cartas,fichero)
+#fichero.close()
+
+ayuda="1-Para enviar mensajes al canal se usan los siguientes comandos: \n/enviar 'mensaje a enviar'\n*Ejemplo: \n/enviar Te tengo un chisme nuevo \n2-Para enviar una cancion 🎧 o foto 📸 se utiliza el mismo comando, ademas se puede responder una foto o cancion con el comando /enviar *'Mensaje a enviar' \n*Ejemplo: \n(responde una foto o cancion y luego escribe en el chat) \n/enviar *Aqui mando una cancion para mi persona especial \n3-Tambien puedes enviar encuestas solo creandola en el chat del bot. \n4-Para enviar una carta al buzon para el 14 de febrero se usa el comando /carta seguido del texto de la carta y al final 'Para:' tal persona\n*Ejemplo:\n/carta Hola, seguro no te esperabas recibir una carta por aqui, te quiero mucho y estoy enamorado de ti. Para:Fulanita de Matematica\n5-Si tienes alguna queja o sugerencia usa el comando /feedback, funciona igual que /enviar\n6-Para unirte al canal usa el comando /canal"
 
 @client.on(events.NewMessage)
 async def handle_new_message(event):
@@ -101,6 +107,34 @@ async def handle_new_message(event):
     elif(event.message.poll):
         await event.reply("Encuesta recibida y enviada al administrador 🚀 , si es aprobada se enviara al canal 😉")
         await client.send_message("@Leonardo2004" , file=event.poll , message="" )
+        
+    elif(mesage[0:7]== "/carta "):
+        index=mesage.find("Para:")
+        if(index>20):
+            fichero=open("cartas.txt","rb")
+            cartas=pickle.load(fichero)
+            fichero.close()
+            cartas.append(mesage[7:])
+            fichero2=open("cartas.txt","wb")
+            pickle.dump(cartas,fichero2)
+            fichero2.close()
+            await event.reply("Carta enviada 🚀, se guardara hasta el 14 de febrero y luego sera abierta")
+        else:
+            await event.reply("Texto de carta muy corto o no se ha encontrado el 'Para:'")
+            
+    elif(mesage == "/abrir" and sender.id == 968663996):
+        await event.reply("Se ha abierto el buzon, se enviaran todas las cartas al canal")
+        fichero=open("cartas.txt","rb")
+        cartas=pickle.load(fichero)
+        fichero.close()
+        for carta in cartas:
+            await client.send_message(chanel, message=carta)
+            
+    elif(mesage=="/num"):
+        fichero=open("cartas.txt","rb")
+        cartas=pickle.load(fichero)
+        fichero.close()
+        await event.reply("En este momento se encuentran " + str(len(cartas)) + " cartas en el buzon")
             
     elif(mesage=="/start"):
         await client.send_message(chat,"Hola! escribe /help para obtener ayuda de como enviar mensajes al canal")
