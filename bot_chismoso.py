@@ -149,7 +149,8 @@ async def handle_new_message(event):
                 lista.remove(user)
         
     else:
-        await client.send_message(chat,"Formato del mensaje incorrecto, si tiene dudas presione /help")
+        if not isinstance(chat,Channel):
+            await client.send_message(chat,"Formato del mensaje incorrecto, si tiene dudas presione /help")
          
 with client:
     client.run_until_disconnected()
