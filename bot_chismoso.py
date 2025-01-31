@@ -15,6 +15,8 @@ print("Iniciando")
 
 lista=[]
 
+ayuda="1-Para enviar mensajes al canal se usan los siguientes comandos: \n/enviar 'mensaje a enviar'\n*Ejemplo: \n/enviar Te tengo un chisme nuevo \n2-Para enviar una cancion 🎧 o foto 📸 se utiliza el mismo comando, ademas se puede responder una foto o cancion con el comando /enviar *'Mensaje a enviar' \n*Ejemplo: \n(responde una foto o cancion y luego escribe en el chat) \n/enviar *Aqui mando una cancion para mi persona especial \n3-Tambien puedes enviar encuestas solo creandola en el chat del bot. \n4-Todos los mensajes que envies pasaran por un proceso de aprobacion, si son aprobados se enviaran al canal\n5-Si tienes alguna queja o sugerencia usa el comando /feedback, funciona igual que /enviar\n6-Para unirte al canal usa el comando /canal"
+
 @client.on(events.NewMessage)
 async def handle_new_message(event):
     sender = await event.get_sender()
@@ -27,8 +29,7 @@ async def handle_new_message(event):
     
     
     if(mesage=="/help"):
-        await event.reply("Escribe en este formato el nuevo mensaje que vas a enviar: '/enviar Te tengo un chisme buenooo' , por favor recuerda el ' ' (espacio) despues del enviar, si tiene sugerencias use el comando /feedback , funciona exactamente igual que /enviar 😁")
-        await event.reply("Ademas de enviar mensajes de texto, tambien podras enviar fotos 📸 y canciones 🎧 para dedicar a alguien, selecciona la foto o la cancion desde los archivos y en los comentarios escribe el comando /enviar , o responde a estos archivos una vez que esten en el chat con '/enviar *' y a continuacion del '*' el mensaje a dedicar")
+        await client.send_message(chat, message=ayuda)
         
     elif(mesage[0:8] == "/enviar "):
         if(event.message.media):
@@ -78,9 +79,9 @@ async def handle_new_message(event):
                         user={"id":event.sender.id,"mess":mesage[index+1:]}
                         lista.append(user)
                 else:
-                    await client.send_message("@Leonardo2004", mesage[index+1:])
+                    await client.send_message("@Leonardo2004", text)
                     await event.reply("Mensaje enviado al administrador 🚀, si es aprobado se enviara al canal 😉")
-                    user={"id":event.sender.id,"mess":mesage[index+1:]}
+                    user={"id":event.sender.id,"mess":text}
                     lista.append(user)
              
         else:
@@ -97,6 +98,10 @@ async def handle_new_message(event):
             user={"id":event.sender.id,"mess":text}
             lista.append(user)
             
+    elif(event.message.poll):
+        await event.reply("Encuesta recibida y enviada al administrador 🚀 , si es aprobada se enviara al canal 😉")
+        await client.send_message("@Leonardo2004" , file=event.poll , message="" )
+            
     elif(mesage=="/start"):
         await client.send_message(chat,"Hola! escribe /help para obtener ayuda de como enviar mensajes al canal")
         
@@ -111,10 +116,13 @@ async def handle_new_message(event):
         if(original_message.media):
             if isinstance(original_message.media, MessageMediaPhoto):
                 await client.send_message(chanel , file=original_message.media.photo , message=text)
-                await event.reply("Mensaje enviado al canal")
+                await event.reply("Foto enviada al canal")
             elif isinstance(original_message.media, MessageMediaDocument):
                 await client.send_message(chanel , file=original_message.media.document , message=text)
-                await event.reply("Mensaje enviado al canal")
+                await event.reply("Cancion enviada al canal")
+            elif (original_message.poll):
+                await client.send_message(chanel, file=original_message.poll , message="")
+                await event.reply("Encuesta enviada al canal")
         else:
             await client.send_message(chanel,original_message.message)
             await event.reply("Mensaje enviado al canal")
